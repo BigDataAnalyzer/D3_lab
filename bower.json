@@ -1,0 +1,23 @@
+{
+  "name": "D3_lab",
+  "homepage": "https://github.com/BigDataAnalyzer/D3_lab",
+  "authors": [
+    "Jay Dharmendta Solanki",
+    "Ginni Malik",
+    "Bhagya Gummalla"
+  ],
+  "description": "D3_lab delivery",
+  "main": "",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jQuery": "^2.2.3",
+    "d3": "^3.5.16"
+  }
+}
