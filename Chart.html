@@ -154,7 +154,7 @@
                 $("#error_field").hide();
                 var data_values1 = window.header_value_map[$("#x_axis_dim").val()];
                 var data_values2 = window.header_value_map[$("#y_axis_dim").val()];
-                var test = []
+                var test = [];
                 var mpg_min = Number($("#min_value").val());
                 var mpg_max = Number($("#max_value").val());
                 var min_max_idx = 0;
@@ -168,29 +168,31 @@
                     width = 960 - margin.left-margin.right,
                     height = 500-margin.top-margin.bottom;
                 var x = d3.scale.linear()
-//                                .domain([d3.min([0,d3.min(data_values1)-1]), d3.max(data_values1)+1])
                                 .domain([d3.max([0,d3.min(test,function(d){return d[0];})-1]), d3.max(test,function(d){return d[0];})+1])
                                 .range([0,width]);
                 var y = d3.scale.linear()
-//                                .domain([d3.max([0,d3.min(data_values2)-1]), d3.max(data_values2)+1])
                                 .domain([d3.max([0,d3.min(test,function(d){return d[1];})-1]), d3.max(test,function(d){return d[1];})+1])
                                 .range([height,0]);
-                var chart = d3.select("div.plot")
+                var previousChart = d3.select("div.plot").select("svg");
+                var chart;
+                if (previousChart==""){
+                    chart = d3.select("div.plot")
                                 .append("svg:svg")
                                 .attr("width",width+margin.right+margin.left)
                                 .attr("height",height+margin.top+margin.bottom)
                                 .attr("class","chart");
-                var main = chart.append("g")
-                                    .attr("transform",'translate('+margin.left+','+margin.top+')')
-                                    .attr("width",width)
-                                    .attr("height",height)
-                                    .attr("class","main");
+                }else{
+                    chart = previousChart;
+                }
                 var x_axis = d3.svg.axis()
                                     .scale(x)
                                     .orient("bottom");
-                main.append('g')
+                var y_axis = d3.svg.axis()
+                                    .scale(y)
+                                    .orient("left");
+                chart.append('g')
                         .attr('transform','translate(0,'+height+')')
-                        .attr("class","main axis date")
+                        .attr("class","x_axis_class")
                         .call(x_axis)
                         .append("text")
                           .attr("class", "label")
@@ -199,12 +201,9 @@
                           .style("text-anchor", "end")
                           .text($("#x_axis_dim").val()+"-->");
 
-                var y_axis = d3.svg.axis()
-                                    .scale(y)
-                                    .orient("left");
-                main.append('g')
+                chart.append('g')
                         .attr('transform','translate(0,0)')
-                        .attr("class","main axis date")
+                        .attr("class","y_axis_class")
                         .call(y_axis)
                         .append("text")
                           .attr("class", "label")
@@ -212,34 +211,24 @@
                           .attr("y", 12)
                           .style("text-anchor", "end")
                           .text($("#y_axis_dim").val()+"-->");
+                d3.select("div.plot").selectAll("svg").selectAll(".x_axis_class").selectAll("text.label").text($("#x_axis_dim").val());
+                d3.select("div.plot").selectAll("svg").selectAll(".y_axis_class").selectAll("text.label").text($("#y_axis_dim").val());
+                var scatter_points = chart.selectAll("circle").data(test);
+                scatter_points.enter()
+                            .append("circle");
 
-
-                var g = main.append("svg:g");
-                var tooltip = d3.select("div.plot").append("div")
-                                .attr("class","tooltip")
-                                .style("opacity",0);
-
-                g.selectAll("scatter-dots")
-                    .data(test)
-                    .enter().append("svg:circle")
-                            .attr("cx",function(d,a){return x(d[0]);})
+                scatter_points.attr("cx",function(d,a){return x(d[0]);})
                             .attr("cy",function(d,a){return y(d[1]);})
                             .attr("r",3)
                             .on("mouseover",function(d){
-                                tooltip.transition()
-                                        .duration(200)
-                                        .style("opacity",0.9);
-                                tooltip.html(d[2]).style("left",(d3.event.pageX+5)+"px")
-                                .style("top",(d3.event.pageY-28)+"px");
                                 d3.select(".hover_header").selectAll("h4").remove();
                                 d3.select(".hover_header").append("h4").style("color","black").text(d[2]);
                             })
                             .on("mouseout",function(d){
-                                tooltip.transition().duration(500)
-                                        .style("opacity",0);
                                 d3.select(".hover_header").selectAll("h4").remove();
                                 d3.select(".hover_header").append("h4").text(".");
                             });
+                scatter_points.exit().remove();
             }
         });
     </script>
